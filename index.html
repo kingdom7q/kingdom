@@ -1,247 +1,161 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مملكة التاج الرقمي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDK (للحفظ السحابي واستعادة الحسابات) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مملكة التاج الرقمي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-    <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #0d131a; color: #e2e8f0; }
-        .royal-font { font-family: 'Amiri', serif; }
-        .gold-gradient { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
-        .gold-text { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 50%, #aa771c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .royal-card { background: linear-gradient(180deg, #161f2c 0%, #0d131a 100%); border: 1px solid #bf953f44; }
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; transition: transform 0.8s ease; }
-        .rotate-y-180 { transform: rotateY(180deg); }
-        .backface-hidden { backface-visibility: hidden; }
-    </style>
+<!-- مكتبات الحفظ السحابي والتسجيل -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+<style>
+body { font-family: 'Tajawal', sans-serif; background-color: #0d131a; color: #e2e8f0; }
+.royal-font { font-family: 'Amiri', serif; }
+.gold-gradient { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
+.gold-text { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 50%, #aa771c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.royal-card { background: linear-gradient(180deg, #161f2c 0%, #0d131a 100%); border: 1px solid #bf953f44; }
+</style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="min-h-screen pb-12 flex flex-col justify-between">
 
-    <!-- شريط المحاكاة العلوي لتجربة الرتب -->
-    <nav class="bg-slate-900 border-b border-amber-500/30 p-3 text-xs flex flex-wrap justify-between items-center gap-2 sticky top-0 z-50">
-        <div class="flex items-center gap-2">
-            <i class="fa-solid fa-crown text-amber-400"></i>
-            <span class="font-bold gold-text">محاكي الأدوار:</span>
-        </div>
-        <div class="flex flex-wrap gap-1" id="role-selector">
-            <button onclick="switchRole('king')" class="px-3 py-1 rounded bg-amber-600 text-black font-bold">👑 الملك (ID: 1)</button>
-            <button onclick="switchRole('pm')" class="px-2 py-1 rounded bg-slate-800 border border-slate-700">رئيس الوزراء</button>
-            <button onclick="switchRole('interior')" class="px-2 py-1 rounded bg-slate-800 border border-slate-700">وزير الداخلية</button>
-            <button onclick="switchRole('citizen')" class="px-2 py-1 rounded bg-slate-800 border border-slate-700">مواطن عادي</button>
-        </div>
-    </nav>
+<!-- الهيدر الرئيسي -->
+<header class="text-center py-6 px-4 bg-slate-900/80 border-b border-slate-800">
+  <div class="max-w-4xl mx-auto flex flex-col items-center">
+    <div class="w-16 h-16 rounded-full border-2 border-amber-400 flex items-center justify-center text-3xl mb-2 bg-slate-800">👑</div>
+    <h1 class="text-3xl md:text-4xl font-bold royal-font gold-text">مملكة التاج الرقمي</h1>
+    <p class="text-xs md:text-sm text-slate-400 mt-1">أنت تحت حماية المملكة فوق أي أرض وتحت أي سماء</p>
+  </div>
+</header>
 
-    <!-- الهيدر الرئيسي -->
-    <header class="text-center py-6 px-4 bg-slate-900/80 border-b border-slate-800">
-        <div class="max-w-4xl mx-auto flex flex-col items-center">
-            <div id="app-flag-icon" class="w-16 h-16 rounded-full border-2 border-amber-400 flex items-center justify-center text-3xl mb-2 bg-slate-800">
-                👑
-            </div>
-            <h1 id="app-kingdom-name" class="text-3xl md:text-4xl font-bold royal-font gold-text">مملكة التاج الرقمي</h1>
-            <p id="app-motto" class="text-xs md:text-sm text-slate-400 mt-1">"أنت تحت حماية المملكة فوق أي أرض وتحت أي سماء"</p>
-        </div>
-    </header>
+<!-- شاشة تسجيل الدخول وإنشاء الهوية -->
+<main id="auth-screen" class="max-w-md mx-auto px-4 mt-10 w-full">
+  <div class="royal-card p-6 rounded-2xl shadow-xl">
+    <h2 class="text-xl font-bold text-amber-400 text-center mb-4 royal-font">بوابة الدخول الملكية</h2>
+    <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">الرقم الوطني / اسم المستخدم</label>
+        <input type="text" id="user-id-input" required placeholder="أدخل رقمك الوطني أو اسمك" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">كلمة المرور الملكية</label>
+        <input type="password" id="password-input" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+      </div>
+      <button type="submit" class="w-full font-bold gold-gradient text-slate-950 py-3 rounded-lg shadow-lg hover:opacity-90 transition">تسجيل الدخول</button>
+    </form>
+    <p class="text-xs text-slate-500 text-center mt-4">ملاحظة: حساب الملك الرئيسي (ID: 1) مخصص لجلالة الملك فقط.</p>
+  </div>
+</main>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="max-w-4xl mx-auto px-4 mt-6">
-        
-        <!-- مرسوم ملكي -->
-        <div class="royal-card p-4 rounded-xl border border-amber-500/40 mb-6 relative overflow-hidden">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl">📜</span>
-                <div>
-                    <h3 class="font-bold text-amber-400 text-sm">مرسوم ملكي نافذ:</h3>
-                    <p id="app-decree" class="text-sm text-slate-300">يُمنع استخدام الكلمات السيادية في أسماء المستخدمين، وتعتمد الهوية الوطنية بمدة 3 أشهر والجواز بـ 6 أشهر.</p>
-                </div>
-            </div>
-        </div>
+<!-- واجهة المملكة الحقيقية (تفتح بعد الدخول فقط) -->
+<main id="app-screen" class="max-w-4xl mx-auto px-4 mt-6 hidden w-full">
+  <!-- شريط معلومات الحساب المتصل -->
+  <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-3 rounded-xl mb-6">
+    <div class="flex items-center gap-3">
+      <span id="user-avatar" class="text-2xl">👤</span>
+      <div>
+        <div id="logged-user-name" class="font-bold text-sm text-slate-200">...</div>
+        <div id="logged-user-role" class="text-xs text-amber-400">...</div>
+      </div>
+    </div>
+    <button onclick="handleLogout()" class="text-xs bg-red-950 border border-red-800 text-red-300 px-3 py-1.5 rounded-lg">خروج</button>
+  </div>
 
-        <!-- تبويبات النظام -->
-        <div class="flex border-b border-slate-800 mb-6 gap-2 overflow-x-auto">
-            <button onclick="switchTab('profile')" class="tab-btn active border-b-2 border-amber-400 text-amber-400 px-4 py-2 font-bold text-sm whitespace-nowrap">🆔 وثائقي الرسمية</button>
-            <button onclick="switchTab('king-palace')" id="king-tab" class="tab-btn text-slate-400 px-4 py-2 font-bold text-sm whitespace-nowrap">👑 القصر الملكي</button>
-            <button onclick="switchTab('services')" class="tab-btn text-slate-400 px-4 py-2 font-bold text-sm whitespace-nowrap">🏛️ الوزارات والقضاء</button>
-            <button onclick="switchTab('prison')" class="tab-btn text-slate-400 px-4 py-2 font-bold text-sm whitespace-nowrap">⚖️ السجن والمحكمة</button>
-        </div>
+  <!-- مرسوم ملكي -->
+  <div class="royal-card p-4 rounded-xl border border-amber-500/40 mb-6">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">📜</span>
+      <div>
+        <h3 class="font-bold text-amber-400 text-sm">مرسوم ملكي نافذ:</h3>
+        <p class="text-sm text-slate-300">يُمنع استخدام الكلمات السيادية في أسماء المستخدمين، وتعتمد الهوية الوطنية بمدة 3 أشهر للحوار و6 أشهر للجواز.</p>
+      </div>
+    </div>
+  </div>
 
-        <!-- تبويب 1: الوثائق الرسمية -->
-        <section id="tab-profile" class="tab-content space-y-6">
-            <div class="grid md:grid-cols-2 gap-6">
-                <!-- بطاقة الهوية -->
-                <div class="royal-card p-5 rounded-2xl relative">
-                    <div class="flex justify-between items-start mb-4 border-b border-slate-700/50 pb-2">
-                        <div>
-                            <span class="text-xs text-amber-400 font-bold">بطاقة هوية مواطن</span>
-                            <h4 id="card-kingdom-name" class="font-bold text-slate-200 text-sm">مملكة التاج الرقمي</h4>
-                        </div>
-                        <span id="user-badge" class="bg-amber-500/20 text-amber-300 text-xs px-2 py-0.5 rounded border border-amber-500/30">👑 الملك</span>
-                    </div>
-                    <div class="space-y-2 text-xs">
-                        <div class="flex justify-between"><span class="text-slate-400">الاسم الرسمي:</span><span id="user-name" class="font-bold text-slate-100">جلالة الملك</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">الرقم الوطني:</span><span id="user-nat-id" class="font-mono text-amber-400 font-bold">1</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">الجنس:</span><span id="user-gender">ذكر</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">تاريخ الإصدار:</span><span>02/11/2026</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">تاريخ الانتهاء (3 أشهر):</span><span>02/02/2027</span></div>
-                    </div>
-                </div>
+  <!-- لوحة تحكم خاصة بالملك فقط (تختفي عن باقي المواطنين) -->
+  <div id="king-only-panel" class="hidden royal-card p-5 rounded-2xl mb-6 border-2 border-amber-500/60">
+    <h3 class="font-bold text-amber-400 text-base mb-2 flex items-center gap-2">👑 لوحة السيطرة والقرارات الملكية</h3>
+    <p class="text-xs text-slate-400 mb-4">هذه اللوحة لا تظهر إلا لصاحب الجلالة الملك (ID: 1).</p>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="alert('تم إصدار مرسوم ملكي جديد')" class="bg-amber-600 text-black text-xs font-bold px-4 py-2 rounded-lg">إصدار مرسوم</button>
+      <button onclick="alert('تم تعيين وزير جديد')" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs font-bold px-4 py-2 rounded-lg">تعيين/عزل الوزراء</button>
+    </div>
+  </div>
 
-                <!-- جواز السفر 3D -->
-                <div class="perspective-1000 h-64 cursor-pointer" onclick="this.querySelector('.transform-style-3d').classList.toggle('rotate-y-180')">
-                    <div class="transform-style-3d w-full h-full relative rounded-2xl shadow-2xl">
-                        <!-- وجه الجواز الخارجي -->
-                        <div class="absolute inset-0 bg-emerald-950 border-2 border-amber-400 rounded-2xl p-4 flex flex-col justify-between items-center text-center backface-hidden">
-                            <div class="text-center">
-                                <p id="passport-kingdom-name" class="font-bold royal-font text-amber-400 text-lg">مملكة التاج الرقمي</p>
-                                <span id="passport-flag-icon" class="text-3xl block my-2">👑</span>
-                            </div>
-                            <div class="my-auto">
-                                <i class="fa-solid fa-passport text-4xl text-amber-400/80"></i>
-                                <h3 class="font-bold text-amber-200 mt-2 tracking-widest text-sm">جواز سفر</h3>
-                            </div>
-                            <p id="passport-motto" class="text-[10px] text-amber-300/80 italic">"أنت تحت حماية المملكة فوق أي أرض وتحت أي سماء"</p>
-                        </div>
-                        <!-- داخل الجواز -->
-                        <div class="absolute inset-0 bg-slate-900 border-2 border-amber-400 rounded-2xl p-4 flex flex-col justify-between rotate-y-180 backface-hidden">
-                            <div class="border-b border-slate-700 pb-2">
-                                <h4 class="text-amber-400 font-bold text-xs">بيانات جواز السفر (6 أشهر)</h4>
-                            </div>
-                            <div class="space-y-1 text-xs">
-                                <p><span class="text-slate-400">حامل الجواز:</span> <span id="pass-name">جلالة الملك</span></p>
-                                <p><span class="text-slate-400">الرقم الوطني:</span> <span id="pass-id">1</span></p>
-                                <p><span class="text-slate-400">الحالة القضائية:</span> <span class="text-emerald-400">مواطن حر</span></p>
-                            </div>
-                            <p class="text-[9px] text-slate-500 text-center">انقر للمقابلة والطي</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+  <!-- بطاقة الهوية الرسمية -->
+  <div class="royal-card p-5 rounded-2xl">
+    <div class="flex justify-between items-start mb-4 border-b border-slate-700/50 pb-2">
+      <span class="text-xs text-amber-400 font-bold">🪪 الهوية الوطنية الرسمية</span>
+      <h4 class="font-bold text-slate-200 text-sm">مملكة التاج الرقمي</h4>
+    </div>
+    <div class="space-y-2 text-sm">
+      <p><strong>اسم المواطن:</strong> <span id="card-name" class="text-slate-200">-</span></p>
+      <p><strong>الرقم الوطني:</strong> <span id="card-id" class="text-amber-400 font-mono">-</span></p>
+      <p><strong>الصفة / الرتبة:</strong> <span id="card-role" class="text-slate-300">-</span></p>
+    </div>
+  </div>
+</main>
 
-        <!-- تبويب 2: القصر الملكي (صلاحيات الملك حصراً) -->
-        <section id="tab-king-palace" class="tab-content hidden space-y-6">
-            <div class="royal-card p-6 rounded-2xl border border-amber-500/50">
-                <h3 class="text-lg font-bold gold-text mb-4"><i class="fa-solid fa-chess-king"></i> لوحة السيادة والتحكم المطلق للملك</h3>
-                
-                <div class="grid md:grid-cols-2 gap-4 text-xs">
-                    <div>
-                        <label class="block text-slate-400 mb-1">تغيير اسم المملكة:</label>
-                        <input type="text" id="input-kingdom-name" value="مملكة التاج الرقمي" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white">
-                    </div>
-                    <div>
-                        <label class="block text-slate-400 mb-1">رمز/علم المملكة:</label>
-                        <input type="text" id="input-flag-icon" value="👑" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-slate-400 mb-1">العبارة السيادية على جواز السفر:</label>
-                        <input type="text" id="input-motto" value="أنت تحت حماية المملكة فوق أي أرض وتحت أي سماء" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white">
-                    </div>
-                </div>
-                
-                <button onclick="updateKingdomSettings()" class="mt-4 bg-gradient-to-r from-amber-500 to-amber-700 text-black font-bold px-4 py-2 rounded text-xs">حفظ وتعميم القرارات الملكية</button>
-            </div>
+<footer class="text-center text-xs text-slate-600 py-4 mt-auto">
+  مملكة التاج الرقمي © جميع الحقوق محفوظة للنظام الملكي
+</footer>
 
-            <!-- إدارة الوزراء -->
-            <div class="royal-card p-6 rounded-2xl">
-                <h4 class="font-bold text-amber-400 text-sm mb-3">إدارة التعيينات والعزل الوزاري:</h4>
-                <div class="space-y-2 text-xs">
-                    <div class="flex items-center justify-between p-2 bg-slate-800/50 rounded">
-                        <span>مواطن رقم (000000002) - أحمد</span>
-                        <div>
-                            <button onclick="assignRole('وزير الداخلية')" class="bg-blue-600 px-2 py-1 rounded text-white">تعيين وزيراً للداخلية</button>
-                            <button onclick="assignRole('مواطن')" class="bg-red-600 px-2 py-1 rounded text-white">عزل</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<script>
+// البرمجة الحقيقية وتوزيع الصلاحيات
+function handleLogin(e) {
+  e.preventDefault();
+  const idInput = document.getElementById('user-id-input').value.trim();
+  const passInput = document.getElementById('password-input').value.trim();
 
-        <!-- تبويب 3: السجن والمحكمة -->
-        <section id="tab-prison" class="tab-content hidden space-y-4">
-            <div class="bg-red-950/40 border border-red-800/50 p-5 rounded-2xl">
-                <h3 class="text-red-400 font-bold text-base mb-2"><i class="fa-solid fa-lock"></i> السجن الافتراضي للمملكة</h3>
-                <p class="text-xs text-slate-300 mb-4">يتم إيداع المخالفين هنا بقرار من وزير الداخلية أو المحكمة، وسحب صلاحياتهم طوال فترة العقوبة.</p>
-                
-                <div id="prison-controls" class="hidden mb-4 p-3 bg-slate-900 rounded text-xs space-y-2">
-                    <h4 class="text-amber-400 font-bold">لوحة وزير الداخلية / القاضي:</h4>
-                    <input type="text" placeholder="الرقم الوطني للمخالف..." class="bg-slate-800 p-2 rounded w-full border border-slate-700">
-                    <button class="bg-red-600 text-white px-3 py-1 rounded">إيداع بالسجن</button>
-                </div>
+  let name = "";
+  let role = "";
+  let isKing = false;
 
-                <div class="bg-slate-900/80 p-4 rounded text-xs">
-                    <h4 class="text-slate-400 mb-2">قائمة المساجين حالياً:</h4>
-                    <p class="text-slate-500 italic">لا يوجد مسجونون حالياً في سجلات المملكة.</p>
-                </div>
-            </div>
-        </section>
+  // التحقق من حساب الملك الخصري
+  if (idInput === "1" || idInput.toLowerCase() === "الملك") {
+    if (passInput !== "1234") { // يمكنك تغيير كلمة المرور هنا
+      alert("كلمة المرور غير صحيحة لحساب الملك!");
+      return;
+    }
+    name = "صاحب الجلالة الملك";
+    role = "رأس الدولة وقائد السلطات العليا";
+    isKing = true;
+  } else {
+    // حساب مواطن عادي
+    name = idInput;
+    role = "مواطن في مملكة التاج الرقمي";
+    isKing = false;
+  }
 
-    </main>
+  // تحديث البيانات في الواجهة
+  document.getElementById('logged-user-name').innerText = name;
+  document.getElementById('logged-user-role').innerText = role;
+  document.getElementById('card-name').innerText = name;
+  document.getElementById('card-id').innerText = isKing ? "1" : Math.floor(1000 + Math.random() * 9000);
+  document.getElementById('card-role').innerText = role;
+  document.getElementById('user-avatar').innerText = isKing ? "👑" : "👤";
 
-    <script>
-        // التبديل بين التبويبات
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'border-b-2', 'border-amber-400', 'text-amber-400'));
-            
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-        }
+  // إظهار لوحة الملك فقط إذا كان الدخول من حساب الملك
+  if (isKing) {
+    document.getElementById('king-only-panel').classList.remove('hidden');
+  } else {
+    document.getElementById('king-only-panel').classList.add('hidden');
+  }
 
-        // تحديث إعدادات السيادة للملك
-        function updateKingdomSettings() {
-            const name = document.getElementById('input-kingdom-name').value;
-            const flag = document.getElementById('input-flag-icon').value;
-            const motto = document.getElementById('input-motto').value;
+  // التبديل إلى الشاشة الرئيسية
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.remove('hidden');
+}
 
-            document.getElementById('app-kingdom-name').innerText = name;
-            document.getElementById('card-kingdom-name').innerText = name;
-            document.getElementById('passport-kingdom-name').innerText = name;
-            
-            document.getElementById('app-flag-icon').innerText = flag;
-            document.getElementById('passport-flag-icon').innerText = flag;
-
-            document.getElementById('app-motto').innerText = `"${motto}"`;
-            document.getElementById('passport-motto').innerText = `"${motto}"`;
-
-            alert("تم تحديث السيادة الملكية وتعميمها على جميع الوثائق في المملكة!");
-        }
-
-        // محاكاة الألقاب والصلاحيات
-        function switchRole(role) {
-            const userBadge = document.getElementById('user-badge');
-            const userName = document.getElementById('user-name');
-            const userNatId = document.getElementById('user-nat-id');
-            const kingTab = document.getElementById('king-tab');
-            const prisonControls = document.getElementById('prison-controls');
-
-            if(role === 'king') {
-                userBadge.innerText = "👑 الملك";
-                userName.innerText = "جلالة الملك";
-                userNatId.innerText = "1";
-                kingTab.classList.remove('hidden');
-                prisonControls.classList.remove('hidden');
-            } else if(role === 'interior') {
-                userBadge.innerText = "🛡️ وزير الداخلية";
-                userName.innerText = "المواطن أحمد";
-                userNatId.innerText = "000000002";
-                kingTab.classList.add('hidden');
-                prisonControls.classList.remove('hidden');
-            } else {
-                userBadge.innerText = "مواطن";
-                userName.innerText = "المواطن خالد";
-                userNatId.innerText = "000000003";
-                kingTab.classList.add('hidden');
-                prisonControls.classList.add('hidden');
-            }
-        }
-    </script>
+function handleLogout() {
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('app-screen').classList.add('hidden');
+  document.getElementById('login-form').reset();
+}
+</script>
 </body>
 </html>
