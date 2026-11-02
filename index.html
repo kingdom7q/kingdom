@@ -3,158 +3,257 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مملكة التاج الرقمي</title>
+<title>مملكة التاج الرقمي - البوابة الرسمية للمواطنين</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-<!-- مكتبات الحفظ السحابي والتسجيل -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
 <style>
-body { font-family: 'Tajawal', sans-serif; background-color: #0d131a; color: #e2e8f0; }
+body { font-family: 'Tajawal', sans-serif; background-color: #0b0f17; color: #e2e8f0; }
 .royal-font { font-family: 'Amiri', serif; }
 .gold-gradient { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); }
 .gold-text { background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 50%, #aa771c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.royal-card { background: linear-gradient(180deg, #161f2c 0%, #0d131a 100%); border: 1px solid #bf953f44; }
+.royal-card { background: linear-gradient(180deg, #131b26 0%, #0b0f17 100%); border: 1px solid #bf953f44; }
+.active-tab { border-bottom: 2px solid #f59e0b; color: #fbbf24; font-weight: bold; }
 </style>
 </head>
-<body class="min-h-screen pb-12 flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between">
 
 <!-- الهيدر الرئيسي -->
-<header class="text-center py-6 px-4 bg-slate-900/80 border-b border-slate-800">
-  <div class="max-w-4xl mx-auto flex flex-col items-center">
-    <div class="w-16 h-16 rounded-full border-2 border-amber-400 flex items-center justify-center text-3xl mb-2 bg-slate-800">👑</div>
-    <h1 class="text-3xl md:text-4xl font-bold royal-font gold-text">مملكة التاج الرقمي</h1>
-    <p class="text-xs md:text-sm text-slate-400 mt-1">أنت تحت حماية المملكة فوق أي أرض وتحت أي سماء</p>
+<header class="text-center py-6 px-4 bg-slate-900 border-b border-amber-500/30 sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-full border-2 border-amber-400 flex items-center justify-center text-2xl bg-slate-800">👑</div>
+      <div class="text-right">
+        <h1 class="text-xl md:text-2xl font-bold royal-font gold-text">مملكة التاج الرقمي</h1>
+        <p class="text-[10px] md:text-xs text-slate-400">بوابة المواطن الرقمية · وطنٌ رقمي · مصيرٌ مشترك</p>
+      </div>
+    </div>
+    <div id="header-user-status" class="text-xs">
+      <!-- يظهر اسم المستخدم بعد تسجيل الدخول -->
+    </div>
   </div>
 </header>
 
-<!-- شاشة تسجيل الدخول وإنشاء الهوية -->
-<main id="auth-screen" class="max-w-md mx-auto px-4 mt-10 w-full">
-  <div class="royal-card p-6 rounded-2xl shadow-xl">
-    <h2 class="text-xl font-bold text-amber-400 text-center mb-4 royal-font">بوابة الدخول الملكية</h2>
-    <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+<!-- 1. شاشة تسجيل الدخول -->
+<main id="auth-screen" class="max-w-md mx-auto px-4 my-auto py-12 w-full">
+  <div class="royal-card p-6 rounded-2xl shadow-2xl border border-amber-500/30">
+    <div class="text-center mb-6">
+      <span class="text-4xl">🏛️</span>
+      <h2 class="text-2xl font-bold text-amber-400 mt-2 royal-font">تسجيل الدخول للمملكة</h2>
+      <p class="text-xs text-slate-400">أدخل رقمك الوطني واسمك للوصول إلى خدمات المواطن</p>
+    </div>
+    
+    <form onsubmit="loginUser(event)" class="space-y-4">
       <div>
-        <label class="block text-xs text-slate-400 mb-1">الرقم الوطني / اسم المستخدم</label>
-        <input type="text" id="user-id-input" required placeholder="أدخل رقمك الوطني أو اسمك" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+        <label class="block text-xs text-slate-300 mb-1">الرقم الوطني / ID</label>
+        <input type="text" id="login-id" required placeholder="مثال: 1 (للملك) أو 709" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
       </div>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">كلمة المرور الملكية</label>
-        <input type="password" id="password-input" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+        <label class="block text-xs text-slate-300 mb-1">اسم المواطن</label>
+        <input type="text" id="login-name" required placeholder="اكتب اسمك الكامل" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
       </div>
-      <button type="submit" class="w-full font-bold gold-gradient text-slate-950 py-3 rounded-lg shadow-lg hover:opacity-90 transition">تسجيل الدخول</button>
+      <div>
+        <label class="block text-xs text-slate-300 mb-1">كلمة المرور السرية</label>
+        <input type="password" id="login-pass" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+      </div>
+      <button type="submit" class="w-full font-bold gold-gradient text-slate-950 py-3 rounded-lg shadow-lg hover:opacity-90 transition">دخول البوابة الرسمية</button>
     </form>
-    <p class="text-xs text-slate-500 text-center mt-4">ملاحظة: حساب الملك الرئيسي (ID: 1) مخصص لجلالة الملك فقط.</p>
+    <p class="text-[10px] text-slate-500 text-center mt-4">حساب جلالة الملك (ID: 1) محمي بكلمة المرور الخاصة بالعرش.</p>
   </div>
 </main>
 
-<!-- واجهة المملكة الحقيقية (تفتح بعد الدخول فقط) -->
-<main id="app-screen" class="max-w-4xl mx-auto px-4 mt-6 hidden w-full">
-  <!-- شريط معلومات الحساب المتصل -->
-  <div class="flex justify-between items-center bg-slate-900 border border-slate-800 p-3 rounded-xl mb-6">
-    <div class="flex items-center gap-3">
-      <span id="user-avatar" class="text-2xl">👤</span>
-      <div>
-        <div id="logged-user-name" class="font-bold text-sm text-slate-200">...</div>
-        <div id="logged-user-role" class="text-xs text-amber-400">...</div>
+<!-- 2. الواجهة الرئيسية (تفتح بعد الدخول) -->
+<div id="app-screen" class="hidden max-w-4xl mx-auto px-4 py-6 w-full flex-1">
+  
+  <!-- القائمة السفلية/العلوية للتبويب -->
+  <nav class="flex border-b border-slate-800 mb-6 gap-2 overflow-x-auto pb-2">
+    <button onclick="showTab('tab-identity')" id="btn-tab-identity" class="active-tab text-xs md:text-sm px-4 py-2 font-bold whitespace-nowrap"><i class="fa-solid fa-id-card ml-1"></i> هويتي وجوازي</button>
+    <button onclick="showTab('tab-voting')" id="btn-tab-voting" class="text-slate-400 text-xs md:text-sm px-4 py-2 font-bold whitespace-nowrap"><i class="fa-solid fa-check-to-slot ml-1"></i> التصويت والقرارات</button>
+    <button onclick="showTab('tab-services')" id="btn-tab-services" class="text-slate-400 text-xs md:text-sm px-4 py-2 font-bold whitespace-nowrap"><i class="fa-solid fa-building-columns ml-1"></i> الوزارات والتواصل</button>
+    <button id="king-tab-btn" onclick="showTab('tab-king')" class="hidden text-amber-400 text-xs md:text-sm px-4 py-2 font-bold whitespace-nowrap"><i class="fa-solid fa-crown ml-1"></i> العرش الملكي</button>
+  </nav>
+
+  <!-- مرسوم ملكي عاجل -->
+  <div class="royal-card p-4 rounded-xl mb-6 flex items-center gap-3">
+    <span class="text-2xl">📜</span>
+    <div>
+      <h3 class="font-bold text-amber-400 text-xs md:text-sm">مرسوم ملكي نافذ:</h3>
+      <p class="text-xs text-slate-300">يُمنع استخدام الكلمات السيادية في أسماء المستخدمين، وتُعتمد كافة الوثائق الصادرة من هذه البوابة رسمياً.</p>
+    </div>
+  </div>
+
+  <!-- التبويب 1: الهوية وجواز السفر -->
+  <section id="tab-identity" class="space-y-6">
+    <div class="grid md:grid-cols-2 gap-6">
+      
+      <!-- بطاقة الهوية -->
+      <div class="royal-card p-5 rounded-2xl relative border border-amber-500/40">
+        <div class="flex justify-between items-start mb-4 border-b border-slate-800 pb-2">
+          <span class="text-xs text-amber-400 font-bold">🪪 بطاقة الهوية الوطنية</span>
+          <span class="text-xs text-slate-400">مملكة التاج الرقمي</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-20 bg-slate-800 border border-slate-700 rounded-lg flex items-center justify-center text-3xl" id="card-avatar">👤</div>
+          <div class="space-y-1 text-xs">
+            <p><strong class="text-slate-400">الاسم:</strong> <span id="card-name" class="text-slate-100 font-bold">-</span></p>
+            <p><strong class="text-slate-400">الرقم الوطني:</strong> <span id="card-id" class="text-amber-400 font-mono">-</span></p>
+            <p><strong class="text-slate-400">الصفة:</strong> <span id="card-role" class="text-slate-300">-</span></p>
+            <p><strong class="text-slate-400">تاريخ الإصدار:</strong> <span>02/11/2026</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- جواز السفر -->
+      <div class="bg-gradient-to-br from-blue-950 to-slate-900 p-5 rounded-2xl relative border border-blue-500/30">
+        <div class="flex justify-between items-start mb-4 border-b border-blue-800/50 pb-2">
+          <span class="text-xs text-blue-300 font-bold">📖 جواز السفر الرقمي</span>
+          <span class="text-xs text-blue-400">PASSPORT</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-20 bg-blue-900/50 border border-blue-700 rounded-lg flex items-center justify-center text-3xl">🛂</div>
+          <div class="space-y-1 text-xs">
+            <p><strong class="text-slate-400">اسم الحامل:</strong> <span id="pass-name" class="text-slate-100 font-bold">-</span></p>
+            <p><strong class="text-slate-400">رقم الجواز:</strong> <span id="pass-num" class="text-blue-300 font-mono">-</span></p>
+            <p><strong class="text-slate-400">الجنسية:</strong> <span class="text-slate-200">مواطن بالمملكة</span></p>
+            <p><strong class="text-slate-400">الصلاحية:</strong> <span class="text-green-400">سارية المفعول</span></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- التبويب 2: التصويت والقرارات -->
+  <section id="tab-voting" class="hidden space-y-4">
+    <div class="royal-card p-5 rounded-xl">
+      <h3 class="text-base font-bold text-amber-400 mb-2">🗳️ التصويت العام على قرارات الدولة</h3>
+      <p class="text-xs text-slate-400 mb-4">صوت واحد لكل مواطن مشاركةً في صنع القرار.</p>
+      
+      <div class="space-y-3">
+        <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 flex justify-between items-center">
+          <div>
+            <p class="text-xs font-bold text-slate-200">اعتماد نظام الميزانية الزراعية الجديد</p>
+            <p class="text-[10px] text-slate-500">ينتهي التصويت بنهاية الشهر</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="vote(true)" class="bg-green-900/40 border border-green-700 text-green-300 text-xs px-3 py-1 rounded">موافق</button>
+            <button onclick="vote(false)" class="bg-red-900/40 border border-red-700 text-red-300 text-xs px-3 py-1 rounded">غير موافق</button>
+          </div>
+        </div>
       </div>
     </div>
-    <button onclick="handleLogout()" class="text-xs bg-red-950 border border-red-800 text-red-300 px-3 py-1.5 rounded-lg">خروج</button>
-  </div>
+  </section>
 
-  <!-- مرسوم ملكي -->
-  <div class="royal-card p-4 rounded-xl border border-amber-500/40 mb-6">
-    <div class="flex items-center gap-3">
-      <span class="text-2xl">📜</span>
-      <div>
-        <h3 class="font-bold text-amber-400 text-sm">مرسوم ملكي نافذ:</h3>
-        <p class="text-sm text-slate-300">يُمنع استخدام الكلمات السيادية في أسماء المستخدمين، وتعتمد الهوية الوطنية بمدة 3 أشهر للحوار و6 أشهر للجواز.</p>
+  <!-- التبويب 3: الوزارات والتواصل -->
+  <section id="tab-services" class="hidden space-y-4">
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="royal-card p-4 rounded-xl">
+        <h4 class="font-bold text-amber-400 text-sm mb-2">🌾 الزراعة والأمن الغذائي</h4>
+        <p class="text-xs text-slate-400 mb-3">اقترح محصولاً جديداً ليتم التصويت عليه واستزراعه بالمملكة.</p>
+        <input type="text" placeholder="اسم المحصول..." class="w-full bg-slate-950 border border-slate-700 rounded text-xs p-2 mb-2">
+        <button onclick="alert('تم رفع المقترح للوزارة')" class="bg-amber-600 text-black text-xs font-bold px-3 py-1.5 rounded w-full">تقديم اقتراح</button>
+      </div>
+
+      <div class="royal-card p-4 rounded-xl">
+        <h4 class="font-bold text-amber-400 text-sm mb-2">🏛️ وزارة التواصل السريع</h4>
+        <p class="text-xs text-slate-400 mb-3">اكتب اقتراحك المباشر أو شكواك للديوان.</p>
+        <textarea placeholder="اكتب رسالتك..." class="w-full bg-slate-950 border border-slate-700 rounded text-xs p-2 mb-2 h-16"></textarea>
+        <button onclick="alert('تم إرسال الرسالة')" class="bg-amber-600 text-black text-xs font-bold px-3 py-1.5 rounded w-full">إرسال</button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- لوحة تحكم خاصة بالملك فقط (تختفي عن باقي المواطنين) -->
-  <div id="king-only-panel" class="hidden royal-card p-5 rounded-2xl mb-6 border-2 border-amber-500/60">
-    <h3 class="font-bold text-amber-400 text-base mb-2 flex items-center gap-2">👑 لوحة السيطرة والقرارات الملكية</h3>
-    <p class="text-xs text-slate-400 mb-4">هذه اللوحة لا تظهر إلا لصاحب الجلالة الملك (ID: 1).</p>
-    <div class="flex flex-wrap gap-2">
-      <button onclick="alert('تم إصدار مرسوم ملكي جديد')" class="bg-amber-600 text-black text-xs font-bold px-4 py-2 rounded-lg">إصدار مرسوم</button>
-      <button onclick="alert('تم تعيين وزير جديد')" class="bg-slate-800 border border-amber-500/40 text-amber-300 text-xs font-bold px-4 py-2 rounded-lg">تعيين/عزل الوزراء</button>
+  <!-- التبويب 4: العرش الملكي (للملك فقط) -->
+  <section id="tab-king" class="hidden space-y-4">
+    <div class="royal-card p-5 rounded-xl border-2 border-amber-500">
+      <h3 class="text-lg font-bold gold-text mb-2">👑 لوحة التحكم الملكية المباشرة</h3>
+      <p class="text-xs text-slate-400 mb-4">أنت الآن داخل مركز السيطرة الأعلى للمملكة (ID: 1).</p>
+      
+      <div class="grid md:grid-cols-2 gap-3">
+        <button onclick="alert('تم إعلان حالة الطوارئ')" class="bg-red-900 border border-red-600 text-white font-bold text-xs p-3 rounded-lg">إعلان حالة الطوارئ</button>
+        <button onclick="alert('تم إصدار مرسوم سامي')" class="bg-amber-600 text-black font-bold text-xs p-3 rounded-lg">إصدار مرسوم ملكي سامي</button>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- بطاقة الهوية الرسمية -->
-  <div class="royal-card p-5 rounded-2xl">
-    <div class="flex justify-between items-start mb-4 border-b border-slate-700/50 pb-2">
-      <span class="text-xs text-amber-400 font-bold">🪪 الهوية الوطنية الرسمية</span>
-      <h4 class="font-bold text-slate-200 text-sm">مملكة التاج الرقمي</h4>
-    </div>
-    <div class="space-y-2 text-sm">
-      <p><strong>اسم المواطن:</strong> <span id="card-name" class="text-slate-200">-</span></p>
-      <p><strong>الرقم الوطني:</strong> <span id="card-id" class="text-amber-400 font-mono">-</span></p>
-      <p><strong>الصفة / الرتبة:</strong> <span id="card-role" class="text-slate-300">-</span></p>
-    </div>
-  </div>
-</main>
+</div>
 
-<footer class="text-center text-xs text-slate-600 py-4 mt-auto">
+<footer class="text-center text-[10px] text-slate-600 py-4 border-t border-slate-900 mt-auto">
   مملكة التاج الرقمي © جميع الحقوق محفوظة للنظام الملكي
 </footer>
 
 <script>
-// البرمجة الحقيقية وتوزيع الصلاحيات
-function handleLogin(e) {
+let currentUser = null;
+
+function loginUser(e) {
   e.preventDefault();
-  const idInput = document.getElementById('user-id-input').value.trim();
-  const passInput = document.getElementById('password-input').value.trim();
+  const id = document.getElementById('login-id').value.trim();
+  const name = document.getElementById('login-name').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
 
-  let name = "";
-  let role = "";
-  let isKing = false;
+  const isKing = (id === "1" || name === "الملك");
 
-  // التحقق من حساب الملك الخصري
-  if (idInput === "1" || idInput.toLowerCase() === "الملك") {
-    if (passInput !== "1234") { // يمكنك تغيير كلمة المرور هنا
-      alert("كلمة المرور غير صحيحة لحساب الملك!");
-      return;
-    }
-    name = "صاحب الجلالة الملك";
-    role = "رأس الدولة وقائد السلطات العليا";
-    isKing = true;
-  } else {
-    // حساب مواطن عادي
-    name = idInput;
-    role = "مواطن في مملكة التاج الرقمي";
-    isKing = false;
+  if (isKing && pass !== "1234") {
+    alert("كلمة السر غير صحيحة لحساب جلالة الملك!");
+    return;
   }
+
+  currentUser = {
+    id: id,
+    name: name,
+    role: isKing ? "صاحب الجلالة الملك المعظم" : "مواطن في المملكة",
+    isKing: isKing
+  };
 
   // تحديث البيانات في الواجهة
-  document.getElementById('logged-user-name').innerText = name;
-  document.getElementById('logged-user-role').innerText = role;
-  document.getElementById('card-name').innerText = name;
-  document.getElementById('card-id').innerText = isKing ? "1" : Math.floor(1000 + Math.random() * 9000);
-  document.getElementById('card-role').innerText = role;
-  document.getElementById('user-avatar').innerText = isKing ? "👑" : "👤";
+  document.getElementById('card-name').innerText = currentUser.name;
+  document.getElementById('card-id').innerText = currentUser.id;
+  document.getElementById('card-role').innerText = currentUser.role;
+  document.getElementById('card-avatar').innerText = isKing ? "👑" : "👤";
 
-  // إظهار لوحة الملك فقط إذا كان الدخول من حساب الملك
+  document.getElementById('pass-name').innerText = currentUser.name;
+  document.getElementById('pass-num').innerText = "P-" + currentUser.id;
+
+  document.getElementById('header-user-status').innerHTML = `
+    <span class="text-amber-400 font-bold">${currentUser.name}</span>
+    <button onclick="logout()" class="mr-2 text-red-400 border border-red-900 px-2 py-0.5 rounded text-[10px]">خروج</button>
+  `;
+
+  // إظهار لوحة الملك إذا كان هو المسجل
   if (isKing) {
-    document.getElementById('king-only-panel').classList.remove('hidden');
+    document.getElementById('king-tab-btn').classList.remove('hidden');
   } else {
-    document.getElementById('king-only-panel').classList.add('hidden');
+    document.getElementById('king-tab-btn').classList.add('hidden');
   }
 
-  // التبديل إلى الشاشة الرئيسية
+  // التبديل بين الشاشات
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app-screen').classList.remove('hidden');
 }
 
-function handleLogout() {
+function logout() {
   document.getElementById('auth-screen').classList.remove('hidden');
   document.getElementById('app-screen').classList.add('hidden');
-  document.getElementById('login-form').reset();
+  document.getElementById('header-user-status').innerHTML = '';
+}
+
+function showTab(tabId) {
+  ['tab-identity', 'tab-voting', 'tab-services', 'tab-king'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  
+  ['btn-tab-identity', 'btn-tab-voting', 'btn-tab-services', 'king-tab-btn'].forEach(id => {
+    let btn = document.getElementById(id);
+    if(btn) btn.classList.remove('active-tab');
+  });
+
+  document.getElementById(tabId).classList.remove('hidden');
+  event.currentTarget.classList.add('active-tab');
+}
+
+function vote(status) {
+  alert(status ? "تم تسجيل صوتك بـ (موافق) بنجاح" : "تم تسجيل صوتك بـ (غير موافق) بنجاح");
 }
 </script>
 </body>
